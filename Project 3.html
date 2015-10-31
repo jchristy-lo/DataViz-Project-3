@@ -4,25 +4,54 @@
 <head>
     <meta charset="utf-8">
     <title>Project 3</title>
-    <script src="http://www.d3plus.org/js/d3plus.js"></script>
-    <script type="text/javascript" src="data.json"></script>
+    <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="./Project 3.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="Project 2.css">
+    <link rel="stylesheet" type="text/css" href="Project 3.css">
 </head>
 
 <body style="background: #2C2C2C;">
 
-    <div id="viz1">
-        <svg id="viz" height="500" width="700" style="border: 2px solid white;"></svg>
+    <div>
         <p>
+        How do people answer:
         </p>
+
+        <p style="text-align:center;">
+            <select id="question">
+                <option selected="true" value="Q1">Are you satisfied or dissatisfied with the way things are going in your country today?</option>
+                <option value="Q4">How would you describe the current economic situation in your country?</option>
+                <option value="Q5">Over the next 12 months how do you expect the economic situation in your country to change?</option>
+                <option value="Q6">How would you describe your personal economic situation?</option>
+                <option value="Q7">Over the next 12 months how do you expect the your personal economic situation to change?</option>
+                <option value="Q8">When children in your country grow up, do you think they will be better or worse off?</option>
+                <option value="Q24">How has the gap between rich and poor in your country has changed in the last 5 years?</option>
+            </select>
+        </p>
+
     </div>
 
-    <div  id="viz2">
-        <svg id="viz2" height="500" width="700" style="border: 2px solid white;"></svg>
+    <div id="viz" style="text-align:center;">
+        <svg id="viz" height="550" width="700" style="border: 2px solid grey;"></svg>
+
         <p>
+            <select name="" id="changeDemographic">
+                <option selected="true" value="sex">Sex</option>
+                <option value="age">Age</option>
+                <option value="employment">Employment</option>
+                <option value="marrStat">Marital Status</option>
+            </select>
+            <select name="" id="changeOtherQ">
+                <option selected="true" value="Q1">Are you satisfied or dissatisfied with the way things are going in your country today?</option>
+                <option value="Q4">How would you describe the current economic situation in your country?</option>
+                <option value="Q5">Over the next 12 months how do you expect the economic situation in your country to change?</option>
+                <option value="Q6">How would you describe your personal economic situation?</option>
+                <option value="Q7">Over the next 12 months how do you expect the your personal economic situation to change?</option>
+                <option value="Q8">When children in your country grow up, do you think they will be better or worse off?</option>
+                <option value="Q24">How do you think the gap between rich and poor in your country has changed in the last 5 years?</option>
+            </select>
         </p>
+
     </div>
 
     <div>
