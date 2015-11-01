@@ -9,6 +9,7 @@ function run () {
 }
 
 var GLOBAL = { data: [],
+		color: ["red","blue","green","grey"],
 		countries: ["United States", "Canada","Britain",
     	"France","Germany","Italy","Spain","Greece","Poland",
     	"Czech Republic","Russia","Turkey","Egypt","Jordan", "Lebanon",
@@ -17,19 +18,26 @@ var GLOBAL = { data: [],
     	"Bolivia", "Brazil", "Chile", "El Salvador", "Mexico", "Venezuela",
     	"Ghana", "Kenya", "Nigeria", "Senegal", "South Africa", "Uganda"],
 		segments: ["sex","age","job"],
-		q1: {options: ["Satisfied","Dissatisfied","Don't know"]},
-	    q4:{options: ["Very good","Somewhat good","Somewhat bad", 
+		q1: { tag: "Q1",
+			options: ["Satisfied","Dissatisfied","Don't know"]},
+	    q4:{ tag: "Q4",
+	    	options: ["Very good","Somewhat good","Somewhat bad", 
 	    	"Very bad", "Don't know"]},
-	    q5:{options: ["Improve a lot","Improve a little",
+	    q5:{ tag: "Q5",
+	    	options: ["Improve a lot","Improve a little",
 	    	"Remain the same", "Worsen a little", "Worsen a lot",
 	    	"Don't know"]},
-	    q6:{options: ["Very good","Somewhat good","Somewhat bad", 
+	    q6:{  tag: "Q6",
+	    	options: ["Very good","Somewhat good","Somewhat bad", 
 	    	"Very bad", "Don't know"]},
-	    q7:{options: ["Improve a lot","Improve a little",
+	    q7:{  tag: "Q7",
+	    	options: ["Improve a lot","Improve a little",
 	    	"Remain the same", "Worsen a little", "Worsen a lot",
 	    	"Don't know"]},
-	    q8:{options: ["Better off","Worse off","Same", "Don't know"]},
-	    q24:{options: ["Increased","Decreased","Stayed the same",
+	    q8:{  tag: "Q8",
+	    	options: ["Better off","Worse off","Same", "Don't know"]},
+	    q24:{ tag: "Q24",
+	    	options: ["Increased","Decreased","Stayed the same",
 	    	"Don't know"]}
 		}
 
@@ -56,7 +64,7 @@ function countSplitByColumn (data,pred,col) {
 function computeSizes (svg) { 
     var height = svg.attr("height");
     var width = svg.attr("width");
-    var margin = 50;
+    var margin = 20;
 
     return {height:height,
 	    width: width,
@@ -89,13 +97,6 @@ function setupOverview () {
 	.data(GLOBAL.countries)
 	.enter().append("g")
 
-    sel.append("rect")
-	.attr("class","bar")
-	.attr("x",function(d,i) { return s.margin+(i*2)*barWidth; })
-	.attr("y",s.height-s.margin)
-	.attr("width",barWidth)
-	.attr("height",0)
-
     sel.append("text")
 	.attr("class","value")
 	.attr("x",function(d,i) { return s.margin+(i*2)*barWidth+barWidth/2; })
@@ -117,43 +118,74 @@ function updateOverview (activeQ) {
     var svg = d3.select("#viz");
     var s = computeSizes(svg);
 
-    var COLUMN = GLOBAL.countries;
-    var counts = newArrayOfArrays(GLOBAL.q1.options.length,COLUMN.length);
+    var CCounts = {};
+    var counts = newArrayOfArrays(GLOBAL.countries.length,activeQ.options.length);
     var total_count = 0;
- 
+
+    GLOBAL.countries.forEach(function (i){
+    	CCounts[i]=0;
+    });
+
     GLOBAL.data.forEach(function(r) {
 		total_count += 1;
-		for (i = 0; i < COLUMN.length; i++) {
-			if (r["COUNTRY"]===COLUMN[i]) {
+		for (i = 0; i < GLOBAL.countries.length; i++) {
+			if (r["COUNTRY"]===GLOBAL.countries[i]) {
 				for (j = 0; j < activeQ.options.length; j++) {
-		    		counts[j][i]+= 1;
+					if(activeQ.options[j]===r[activeQ.tag]){
+						counts[i][j]+= 1;}
+					CCounts[r["COUNTRY"]] += 1;
 		    	}
 			}
 		}
 	    });
 
-    var yPos = d3.scale.linear() 
-	.domain([0,total_count])
-	.range([s.height-s.margin,s.margin]);
+    var svg = d3.select("#viz");
 
-    var width = d3.scale.linear() 
-	.domain([0,total_count])
-	.range([0,s.chartHeight]);
+    barWidth = s.chartWidth - s.margin;
+    barHeight = s.chartHeight / (1.25 * counts.length - .25);
+    var yPos = s.margin;
 
-    sel = svg.selectAll("g") 
-	.data(counts[0]);
+    for(i=0; i<counts.length; i++){
+    	var xPos = s.margin;
+    	var k = 0;
 
-    sel.select(".bar") 
-	.transition()
-	.duration(1000)
-	.attr("y",function(d) { return yPos(d); }) 
-	.attr("height",function(d) { return height(d); });
+    	counts[i].forEach(function (j) {
 
-    sel.select(".value") 
-	.transition()
-	.duration(1000)
-	.attr("y",function(d) { return yPos(d) - 20; }) 
-	.text(function(d) { return Math.round(100*d/total_count)+"%"; });
+    		svg.append("rect")
+	            .attr("x", xPos)
+	            .attr("y", yPos)
+	            .attr("width", barWidth*3*j/CCounts[GLOBAL.countries[i]])
+	            .attr("height", barHeight)
+	            .style("stroke-width", "2px")
+	            .style("fill", GLOBAL.color[k]);
+            xPos += barWidth *3* j / CCounts[GLOBAL.countries[i]];
+            k += 1;
+    	})
+    	yPos += barHeight*1.25 ;
+    	}    
+
+ //    var yPos = d3.scale.linear() 
+	// .domain([0,total_count])
+	// .range([s.height-s.margin,s.margin]);
+
+ //    var width = d3.scale.linear() 
+	// .domain([0,total_count])
+	// .range([0,s.chartWidth]);
+
+ //    sel = svg.selectAll("g") 
+	// .data(counts[0]);
+
+ //    sel.select(".bar") 
+	// .transition()
+	// .duration(1000)
+	// .attr("y",function(d) { return yPos(d); }) 
+	// .attr("height",function(d) { return barHeight(d); });
+
+ //    sel.select(".value") 
+	// .transition()
+	// .duration(1000)
+	// .attr("y",function(d) { return yPos(d) - 20; }) 
+	// .text(function(d) { return Math.round(100*d/total_count)+"%"; });
 }
 
 function newZeroArray(length) {
