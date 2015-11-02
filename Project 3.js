@@ -85,7 +85,9 @@ function populateAnswers () {
     for (var i = 0; i < GLOBAL[GLOBAL.filterQ].options.length; i++) {
         answers_html+="<option>"+GLOBAL[GLOBAL.filterQ].options[i]+"</option>\n"
     };
-    $("#changeAnswer").html(answers_html);}
+    $("#changeAnswer").html(answers_html);
+    GLOBAL.filterAnswer = "All";
+}
 
 
 // split data into groups based on 'col' values
