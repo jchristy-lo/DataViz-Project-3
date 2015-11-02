@@ -21,6 +21,14 @@ $("document").ready(function() {
     $("#changeOtherQ").change(function() {
         console.log($("#changeOtherQ option:selected").val());
         GLOBAL.filterQ = $("#changeOtherQ option:selected").val();
+        populateAnswers();
+        updateOverview();
+    });
+
+    // Handler for answer selection
+    $("#changeAnswer").change(function() {
+        console.log($("#changeAnswer option:selected").val());
+        GLOBAL.filterAnswer = $("#changeAnswer option:selected").text();
         updateOverview();
     });
 });
@@ -69,7 +77,17 @@ var GLOBAL = {
 	    	"Don't know"]},
         activeQ: "q1",
         demographic: "sex",
-        filterQ: "q1"
+        filterQ: "q1",
+        filterAnswer: "All"
+}
+
+function populateAnswers () {
+    answers_html="<option value=\"all\">All</option>\n";
+    for (var i = 0; i < GLOBAL[GLOBAL.filterQ].options.length; i++) {
+        answers_html+="<option>"+GLOBAL[GLOBAL.filterQ].options[i]+"</option>\n"
+    };
+    $("#changeAnswer").html(answers_html);
+    GLOBAL.filterAnswer = "All";
 }
 
 function populateSelectors (data) { 
@@ -155,6 +173,23 @@ function countSplitByColumn (data,pred,col) {
     return {all:all,counts:counts};
 }
 
+//Generic filter function
+function filter (data,pred) {
+    filtered = [];
+    for (var i = 0; i < data.length; i++) {
+        if (pred(data[i])) {
+            filtered.push(data[i]);
+        }
+    };
+    return filtered;
+}
+
+function questionAnswerPredicateGen (question, answer) {
+    return function (row) {
+        return row[question.tag] == answer
+    }
+}
+
 function computeSizes (svg) { 
     var height = svg.attr("height");
     var width = svg.attr("width");
@@ -168,6 +203,7 @@ function computeSizes (svg) {
 }    
 
 function initializeView () { 
+    populateAnswers();
     var svg = d3.select("#viz");
     var s = computeSizes(svg);
 
@@ -204,17 +240,17 @@ function updateOverview () {
     var CCounts = {};
     var counts = newArrayOfArrays(GLOBAL.countries.length,activeQ.options.length);
 
-    answers_html="<option value=\"all\">All</option>\n";
-    for (var i = 0; i < GLOBAL[GLOBAL.filterQ].options.length; i++) {
-        answers_html+="<option value=\"q4\">"+GLOBAL[GLOBAL.filterQ].options[i]+"</option>\n"
-    };
-    $("#answers").html(answers_html);
-
     GLOBAL.countries.forEach(function (i){
     	CCounts[i]=0;
     });
 
-    GLOBAL.data.forEach(function(r) {
+    var data = GLOBAL.data;
+    if (GLOBAL.filterAnswer != "All") {
+        data = filter(data, questionAnswerPredicateGen(GLOBAL[GLOBAL.filterQ], GLOBAL.filterAnswer));
+    }
+    console.log(data);
+
+    data.forEach(function(r) {
 		for (i = 0; i < GLOBAL.countries.length; i++) {
 			if (r["COUNTRY"]===GLOBAL.countries[i]) {
 				var bool = 0;
