@@ -140,12 +140,11 @@ function populateSelectors (data) {
 }
 
 function isSelected (selectorId,val) {
-	console.log("#"+selectorId+" > option[value='"+val+"']");
     return d3.select("#"+selectorId+" > option[value='"+val+"']")
 	.property("selected");
 }
 
-function filter (r) { 
+function filterRow (r) { 
     return (isSelected("select-sex",r.SEX) &&
 	    isSelected("select-age",r.AGE) &&
 	    isSelected("select-emp",r.Q181) &&
@@ -248,14 +247,13 @@ function updateOverview () {
     if (GLOBAL.filterAnswer != "All") {
         data = filter(data, questionAnswerPredicateGen(GLOBAL[GLOBAL.filterQ], GLOBAL.filterAnswer));
     }
-    console.log(data);
 
     data.forEach(function(r) {
 		for (i = 0; i < GLOBAL.countries.length; i++) {
 			if (r["COUNTRY"]===GLOBAL.countries[i]) {
 				var bool = 0;
 				for (j = 0; j < activeQ.options.length; j++) {
-					if(activeQ.options[j]===r[activeQ.tag] & filter(r)){
+					if(activeQ.options[j]===r[activeQ.tag] & filterRow(r)){
 						bool = 1;
 						counts[i][j]+= 1;}
 		    	}
@@ -332,29 +330,6 @@ function updateOverview () {
 			.text(GLOBAL.countries[i]);
 		yPos += barHeight*1.5 ;
 	}
-
- //    var yPos = d3.scale.linear() 
-	// .domain([0,total_count])
-	// .range([s.height-s.margin,s.margin]);
-
- //    var width = d3.scale.linear() 
-	// .domain([0,total_count])
-	// .range([0,s.chartWidth]);
-
- //    sel = svg.selectAll("g") 
-	// .data(counts[0]);
-
- //    sel.select(".bar") 
-	// .transition()
-	// .duration(1000)
-	// .attr("y",function(d) { return yPos(d); }) 
-	// .attr("height",function(d) { return barHeight(d); });
-
- //    sel.select(".value") 
-	// .transition()
-	// .duration(1000)
-	// .attr("y",function(d) { return yPos(d) - 20; }) 
-	// .text(function(d) { return Math.round(100*d/total_count)+"%"; });
 }
 
 function newZeroArray(length) {
