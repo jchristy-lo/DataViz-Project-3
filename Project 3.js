@@ -5,11 +5,11 @@ function run () {
     setupOverview();
     getDataRows(function(data) {
 	GLOBAL.data = data;
-	updateOverview(GLOBAL.q1) });
+	updateOverview("q1") });
 }
 
 var GLOBAL = { data: [],
-		color: ["cyan","magenta","yellow","white"],
+		color: ["cyan","magenta","yellow","white","blue","red","green"],
 		countries: ["United States", "Canada","Britain",
     	"France","Germany","Italy","Spain","Greece","Poland",
     	"Czech Republic","Russia","Turkey","Egypt","Jordan", "Lebanon",
@@ -98,10 +98,16 @@ function setupOverview () {
 	.enter().append("g")
 }
 
-function updateOverview (activeQ) {
+function updateOverview (rawQ) {
+
+	var activeQ = GLOBAL[rawQ]
+
 	console.log("updateOverview");
     var svg = d3.select("#viz");
     var s = computeSizes(svg);
+
+    svg.selectAll("rect").remove();
+    svg.selectAll("text").remove();
 
     var CCounts = {};
     var counts = newArrayOfArrays(GLOBAL.countries.length,activeQ.options.length);

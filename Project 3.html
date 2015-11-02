@@ -18,14 +18,14 @@
         </p>
 
         <p style="text-align:center;">
-            <select id="question">
-                <option selected="true" value="Q1">Are you satisfied or dissatisfied with the way things are going in your country today?</option>
-                <option value="Q4">How would you describe the current economic situation in your country?</option>
-                <option value="Q5">Over the next 12 months how do you expect the economic situation in your country to change?</option>
-                <option value="Q6">How would you describe your personal economic situation?</option>
-                <option value="Q7">Over the next 12 months how do you expect the your personal economic situation to change?</option>
-                <option value="Q8">When children in your country grow up, do you think they will be better or worse off?</option>
-                <option value="Q24">How has the gap between rich and poor in your country has changed in the last 5 years?</option>
+            <select id="question" onchange = "updateOverview(this.value)">
+                <option selected="true" value="q1">Are you satisfied or dissatisfied with the way things are going in your country today?</option>
+                <option value="q4">How would you describe the current economic situation in your country?</option>
+                <option value="q5">Over the next 12 months how do you expect the economic situation in your country to change?</option>
+                <option value="q6">How would you describe your personal economic situation?</option>
+                <option value="q7">Over the next 12 months how do you expect the your personal economic situation to change?</option>
+                <option value="q8">When children in your country grow up, do you think they will be better or worse off?</option>
+                <option value="q24">How has the gap between rich and poor in your country has changed in the last 5 years?</option>
             </select>
         </p>
 
