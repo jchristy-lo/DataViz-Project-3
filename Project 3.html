@@ -45,12 +45,18 @@
                 <div class="form-group">
                     <label for="changeDemographic" class="col-sm-4 control-label">Break down by demographic</label>
                     <div class="col-sm-8">
-                        <select name="" class="form-control" id="changeDemographic">
-                            <option selected="true" value="sex">Sex</option>
-                            <option value="age">Age</option>
-                            <option value="employment">Employment</option>
-                            <option value="marrStat">Marital Status</option>
-                        </select>
+                    <div style="float: left">
+						<div class="selector-title">Sex: </div>
+						<select class="filter" id="select-sex" multiple></select>
+						<div class="selector-title">Age group: </div>
+						<select class="filter" id="select-age" multiple style="float: right"></select>
+					</div>
+					<div style="float: center">
+						<div class="selector-title">Marital Status: </div>
+						<select class="filter" id="select-mar" multiple ></select>
+						<div class="selector-title">Employment Status: </div>
+						<select class="filter" id="select-emp" multiple></select>
+					</div>
                     </div>
                 </div>
                 <div class="form-group">

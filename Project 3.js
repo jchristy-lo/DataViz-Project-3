@@ -30,7 +30,8 @@ function run () {
     setupOverview();
     getDataRows(function(data) {
 	   GLOBAL.data = data;
-	   updateOverview()
+	   populateSelectors (data);
+	   updateOverview();
     });
 }
 
@@ -69,6 +70,68 @@ var GLOBAL = {
         activeQ: "q1",
         demographic: "sex",
         filterQ: "q1"
+}
+
+function populateSelectors (data) { 
+    var sex = d3.set();
+    var ages = d3.set();
+    var marStat = d3.set();
+    var empStat = d3.set();
+
+    data.forEach(function(r) {
+	sex.add(r.SEX);
+	ages.add(r.AGE);
+	marStat.add(r.Q187);
+	empStat.add(r.Q181);
+    });
+    d3.select("#select-sex")
+	.selectAll("option")
+	.data(sex.values().sort())
+	.enter()
+	.append("option")
+	.attr("value",function(d) { return d; })
+        .property("selected",true)
+	.text(function(d) { return d;});
+
+    d3.select("#select-age")
+	.selectAll("option")
+	.data(ages.values().sort())
+	.enter()
+	.append("option")
+	.attr("value",function(d) { return d; })
+        .property("selected",true)
+	.text(function(d) { return d;});
+
+    d3.select("#select-mar")
+	.selectAll("option")
+	.data(marStat.values().sort())
+	.enter()
+	.append("option")
+	.attr("value",function(d) { return d; })
+        .property("selected",true)
+	.text(function(d) { return d;});
+
+	d3.select("#select-emp")
+	.selectAll("option")
+	.data(empStat.values().sort())
+	.enter()
+	.append("option")
+	.attr("value",function(d) { return d; })
+        .property("selected",true)
+	.text(function(d) { return d;});
+}
+
+function isSelected (selectorId,val) {
+	console.log("#"+selectorId+" > option[value='"+val+"']");
+    return d3.select("#"+selectorId+" > option[value='"+val+"']")
+	.property("selected");
+}
+
+function filter (r) { 
+    return (isSelected("select-sex",r.SEX) &&
+	    isSelected("select-age",r.AGE) &&
+	    isSelected("select-emp",r.Q181) &&
+	    isSelected("select-mar",r.Q187));
 }
 
 
@@ -156,7 +219,7 @@ function updateOverview () {
 			if (r["COUNTRY"]===GLOBAL.countries[i]) {
 				var bool = 0;
 				for (j = 0; j < activeQ.options.length; j++) {
-					if(activeQ.options[j]===r[activeQ.tag]){
+					if(activeQ.options[j]===r[activeQ.tag] & filter(r)){
 						bool = 1;
 						counts[i][j]+= 1;}
 		    	}
