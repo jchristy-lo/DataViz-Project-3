@@ -11,9 +11,7 @@ $("document").ready(function() {
     });
 
     // Handler for demographic selection
-    $("#changeDemographic").change(function() {
-        console.log($("#changeDemographic option:selected").val());
-        GLOBAL.demographic = $("#changeDemographic option:selected").val();
+    $(".filter").change(function() {
         updateOverview();
     });
 
@@ -76,7 +74,6 @@ var GLOBAL = {
 	    	options: ["Increased","Decreased","Stayed the same",
 	    	"Don't know"]},
         activeQ: "q1",
-        demographic: "sex",
         filterQ: "q1",
         filterAnswer: "All"
 }
@@ -139,19 +136,6 @@ function populateSelectors (data) {
 	.text(function(d) { return d;});
 }
 
-function isSelected (selectorId,val) {
-    return d3.select("#"+selectorId+" > option[value='"+val+"']")
-	.property("selected");
-}
-
-function filterRow (r) { 
-    return (isSelected("select-sex",r.SEX) &&
-	    isSelected("select-age",r.AGE) &&
-	    isSelected("select-emp",r.Q181) &&
-	    isSelected("select-mar",r.Q187));
-}
-
-
 // split data into groups based on 'col' values
 // (only process rows satisfying 'pred')
 
@@ -185,7 +169,24 @@ function filter (data,pred) {
 
 function questionAnswerPredicateGen (question, answer) {
     return function (row) {
-        return row[question.tag] == answer
+        return row[question.tag] == answer;
+    }
+}
+
+function demographicPredicateGen () {
+    var sexes = $("#select-sex").val();
+    var ages = $("#select-age").val();
+    var emps = $("#select-emp").val();
+    var mars = $("#select-mar").val();
+    return function(row) {
+        res = 
+            (sexes.indexOf(row.SEX) != -1) &&
+            (ages.indexOf(row.AGE) != -1) &&
+            (emps.indexOf(row.Q181) != -1) &&
+            (mars.indexOf(row.Q187) != -1);
+        // console.log(res);
+        return res;
+        
     }
 }
 
@@ -247,13 +248,15 @@ function updateOverview () {
     if (GLOBAL.filterAnswer != "All") {
         data = filter(data, questionAnswerPredicateGen(GLOBAL[GLOBAL.filterQ], GLOBAL.filterAnswer));
     }
+    data = filter(data, demographicPredicateGen());
+    // console.log(data);
 
     data.forEach(function(r) {
 		for (i = 0; i < GLOBAL.countries.length; i++) {
 			if (r["COUNTRY"]===GLOBAL.countries[i]) {
 				var bool = 0;
 				for (j = 0; j < activeQ.options.length; j++) {
-					if(activeQ.options[j]===r[activeQ.tag] & filterRow(r)){
+					if(activeQ.options[j]===r[activeQ.tag]){
 						bool = 1;
 						counts[i][j]+= 1;}
 		    	}
