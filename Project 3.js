@@ -136,26 +136,6 @@ function populateSelectors (data) {
 	.text(function(d) { return d;});
 }
 
-// split data into groups based on 'col' values
-// (only process rows satisfying 'pred')
-
-function countSplitByColumn (data,pred,col) { 
-    var counts = { };
-    var all = 0;
-    data.forEach(function(r) {
-    	if (pred(r)) { 
-    	    all += 1;
-    	    c = r[col];
-    	    if (c in counts) {
-    		counts[c] += 1;
-    	    } else {
-    		counts[c] = 1;
-    	    }
-    	}
-    });
-    return {all:all,counts:counts};
-}
-
 //Generic filter function
 function filter (data,pred) {
     filtered = [];
