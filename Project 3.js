@@ -29,12 +29,14 @@ function run () {
     initializeView();
     setupOverview();
     getDataRows(function(data) {
-	GLOBAL.data = data;
-	updateOverview() });
+	   GLOBAL.data = data;
+	   updateOverview()
+    });
 }
 
-var GLOBAL = { data: [],
-		color: ["red","blue","green","grey"],
+var GLOBAL = { 
+        data: [],
+		color: ["cyan","magenta","yellow","white","blue","red","green"],
 		countries: ["United States", "Canada","Britain",
     	"France","Germany","Italy","Spain","Greece","Poland",
     	"Czech Republic","Russia","Turkey","Egypt","Jordan", "Lebanon",
@@ -77,15 +79,15 @@ function countSplitByColumn (data,pred,col) {
     var counts = { };
     var all = 0;
     data.forEach(function(r) {
-	if (pred(r)) { 
-	    all += 1;
-	    c = r[col];
-	    if (c in counts) {
-		counts[c] += 1;
-	    } else {
-		counts[c] = 1;
-	    }
-	}
+    	if (pred(r)) { 
+    	    all += 1;
+    	    c = r[col];
+    	    if (c in counts) {
+    		counts[c] += 1;
+    	    } else {
+    		counts[c] = 1;
+    	    }
+    	}
     });
     return {all:all,counts:counts};
 }
@@ -93,7 +95,7 @@ function countSplitByColumn (data,pred,col) {
 function computeSizes (svg) { 
     var height = svg.attr("height");
     var width = svg.attr("width");
-    var margin = 20;
+    var margin = 30;
 
     return {height:height,
 	    width: width,
@@ -125,35 +127,19 @@ function setupOverview () {
     sel = svg.selectAll("g")
 	.data(GLOBAL.countries)
 	.enter().append("g")
-
-    sel.append("text")
-	.attr("class","value")
-	.attr("x",function(d,i) { return s.margin+(i*2)*barWidth+barWidth/2; })
- 	.attr("y",s.height-s.margin-20)
-	.attr("dy","0.3em")
-	.style("text-anchor","middle");
-
-    sel.append("text")
-	.attr("class","label")
-	.attr("x",function(d,i) { return s.margin+(i*2)*barWidth+barWidth/2; })
-	.attr("y",s.margin+s.chartHeight+50)
-	.attr("dy","0.3em")
-	.style("text-anchor","middle")
-	.text(function(d) { return d; });
 }
 
 function updateOverview () {
-    console.log("updateOverview");
-	console.log(GLOBAL[GLOBAL.activeQ]);
+    var activeQ = GLOBAL[GLOBAL.activeQ]
+	console.log("updateOverview");
     var svg = d3.select("#viz");
     var s = computeSizes(svg);
 
-    // svg.selectAll("g").remove();
-    // svg.selectAll("rect").remove();
+    svg.selectAll("rect").remove();
+    svg.selectAll("text").remove();
 
     var CCounts = {};
-    var counts = newArrayOfArrays(GLOBAL.countries.length,GLOBAL[GLOBAL.activeQ].options.length);
-    var total_count = 0;
+    var counts = newArrayOfArrays(GLOBAL.countries.length,activeQ.options.length);
 
     answers_html="<option value=\"all\">All</option>\n";
     for (var i = 0; i < GLOBAL[GLOBAL.filterQ].options.length; i++) {
@@ -166,14 +152,16 @@ function updateOverview () {
     });
 
     GLOBAL.data.forEach(function(r) {
-		total_count += 1;
 		for (i = 0; i < GLOBAL.countries.length; i++) {
 			if (r["COUNTRY"]===GLOBAL.countries[i]) {
-				for (j = 0; j < GLOBAL[GLOBAL.activeQ].options.length; j++) {
-					if(GLOBAL[GLOBAL.activeQ].options[j]===r[GLOBAL[GLOBAL.activeQ].tag]){
+				var bool = 0;
+				for (j = 0; j < activeQ.options.length; j++) {
+					if(activeQ.options[j]===r[activeQ.tag]){
+						bool = 1;
 						counts[i][j]+= 1;}
-					CCounts[r["COUNTRY"]] += 1;
 		    	}
+		    	if(bool === 0);{counts[i][-1]+= 1;}
+		    	CCounts[r["COUNTRY"]] += 1;
 			}
 		}
 	    });
@@ -181,27 +169,70 @@ function updateOverview () {
     var svg = d3.select("#viz");
 
     barWidth = s.chartWidth - s.margin;
-    barHeight = s.chartHeight / (1.25 * counts.length - .25);
+    barHeight = s.chartHeight / (1.5 * counts.length - .5);
     var yPos = s.margin;
 
+	for(i=0; i<5; i++){
+		svg.append("text")
+			.attr("class","label")
+			.attr("x", i*0.25*barWidth+80)
+			.attr("y", 8)
+			.attr("dy","0.3em")
+			.style("text-anchor","middle")
+			.style("fill","white")
+            .style("font-size", "10px")
+			.text(i*25+"%"); 
+
+		svg.append("rect")
+			.attr("x", i*0.25*barWidth+85)
+			.attr("y", 20)
+	        .attr("width", 2)
+	        .attr("height", s.chartHeight+20)
+	        .style("stroke-width", "1px")
+	        .style("fill", "white");}
+
+	for(i=0; i<activeQ.options.length; i++){
+		svg.append("text")
+		.attr("x", i*(1/activeQ.options.length)*barWidth+95)
+		.attr("y",20)
+		.attr("dy","0.3em")
+		.style("text-anchor","right")
+		.style("fill",GLOBAL.color[i])
+        .style("font-size", "13px")
+		.text(activeQ.options[i]); 
+	}
+
     for(i=0; i<counts.length; i++){
-    	var xPos = s.margin;
+    	var xPos = 85;
     	var k = 0;
 
     	counts[i].forEach(function (j) {
-
     		svg.append("rect")
 	            .attr("x", xPos)
 	            .attr("y", yPos)
-	            .attr("width", barWidth*3*j/CCounts[GLOBAL.countries[i]])
+	            .attr("width", barWidth*j/CCounts[GLOBAL.countries[i]])
 	            .attr("height", barHeight)
 	            .style("stroke-width", "2px")
 	            .style("fill", GLOBAL.color[k]);
-            xPos += barWidth *3* j / CCounts[GLOBAL.countries[i]];
+            xPos += barWidth *j/CCounts[GLOBAL.countries[i]];
             k += 1;
     	})
-    	yPos += barHeight*1.25 ;
-    	}    
+    	yPos += barHeight*1.5 ;
+    	}
+
+    yPos = s.margin;
+	for(i=0; i<counts.length; i++){
+		sel.append("text")
+			.attr("class","label")
+			.attr("x", 10)
+			.attr("y", yPos+5)
+			.attr("dy","0.3em")
+			.style("text-anchor","left")
+			.style("fill","white")
+            .style("font-size", "11px")
+			.text(GLOBAL.countries[i]);
+		yPos += barHeight*1.5 ;
+	}
 
  //    var yPos = d3.scale.linear() 
 	// .domain([0,total_count])
