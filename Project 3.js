@@ -6,7 +6,22 @@ $("document").ready(function() {
     // Handler for question selection
     $("#question").change(function() {
         console.log($("#question option:selected").val());
-        updateOverview(GLOBAL[$("#question option:selected").val()]);
+        GLOBAL.activeQ = $("#question option:selected").val();
+        updateOverview();
+    });
+
+    // Handler for demographic selection
+    $("#changeDemographic").change(function() {
+        console.log($("#changeDemographic option:selected").val());
+        GLOBAL.demographic = $("#changeDemographic option:selected").val();
+        updateOverview();
+    });
+
+    // Handler for question selection
+    $("#changeOtherQ").change(function() {
+        console.log($("#changeOtherQ option:selected").val());
+        GLOBAL.filterQ = $("#changeOtherQ option:selected").val();
+        updateOverview();
     });
 });
       
@@ -15,7 +30,7 @@ function run () {
     setupOverview();
     getDataRows(function(data) {
 	GLOBAL.data = data;
-	updateOverview(GLOBAL.q1) });
+	updateOverview() });
 }
 
 var GLOBAL = { data: [],
@@ -48,8 +63,11 @@ var GLOBAL = { data: [],
 	    	options: ["Better off","Worse off","Same", "Don't know"]},
 	    q24:{ tag: "Q24",
 	    	options: ["Increased","Decreased","Stayed the same",
-	    	"Don't know"]}
-		}
+	    	"Don't know"]},
+        activeQ: "q1",
+        demographic: "sex",
+        filterQ: "q1"
+}
 
 
 // split data into groups based on 'col' values
@@ -124,17 +142,24 @@ function setupOverview () {
 	.text(function(d) { return d; });
 }
 
-function updateOverview (activeQ) {
-	console.log("updateOverview");
+function updateOverview () {
+    console.log("updateOverview");
+	console.log(GLOBAL[GLOBAL.activeQ]);
     var svg = d3.select("#viz");
     var s = computeSizes(svg);
 
-    svg.selectAll("g").remove();
-    svg.selectAll("rect").remove();
+    // svg.selectAll("g").remove();
+    // svg.selectAll("rect").remove();
 
     var CCounts = {};
-    var counts = newArrayOfArrays(GLOBAL.countries.length,activeQ.options.length);
+    var counts = newArrayOfArrays(GLOBAL.countries.length,GLOBAL[GLOBAL.activeQ].options.length);
     var total_count = 0;
+
+    answers_html="<option value=\"all\">All</option>\n";
+    for (var i = 0; i < GLOBAL[GLOBAL.filterQ].options.length; i++) {
+        answers_html+="<option value=\"q4\">"+GLOBAL[GLOBAL.filterQ].options[i]+"</option>\n"
+    };
+    $("#answers").html(answers_html);
 
     GLOBAL.countries.forEach(function (i){
     	CCounts[i]=0;
@@ -144,8 +169,8 @@ function updateOverview (activeQ) {
 		total_count += 1;
 		for (i = 0; i < GLOBAL.countries.length; i++) {
 			if (r["COUNTRY"]===GLOBAL.countries[i]) {
-				for (j = 0; j < activeQ.options.length; j++) {
-					if(activeQ.options[j]===r[activeQ.tag]){
+				for (j = 0; j < GLOBAL[GLOBAL.activeQ].options.length; j++) {
+					if(GLOBAL[GLOBAL.activeQ].options[j]===r[GLOBAL[GLOBAL.activeQ].tag]){
 						counts[i][j]+= 1;}
 					CCounts[r["COUNTRY"]] += 1;
 		    	}
