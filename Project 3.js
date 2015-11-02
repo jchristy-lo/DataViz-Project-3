@@ -1,4 +1,14 @@
-window.addEventListener("load",run);
+// window.addEventListener("load",run);
+
+$("document").ready(function() {
+    run();
+
+    // Handler for question selection
+    $("#question").change(function() {
+        console.log($("#question option:selected").val());
+        updateOverview(GLOBAL[$("#question option:selected").val()]);
+    });
+});
       
 function run () {
     initializeView();
@@ -40,6 +50,7 @@ var GLOBAL = { data: [],
 	    	options: ["Increased","Decreased","Stayed the same",
 	    	"Don't know"]}
 		}
+
 
 // split data into groups based on 'col' values
 // (only process rows satisfying 'pred')
@@ -117,6 +128,9 @@ function updateOverview (activeQ) {
 	console.log("updateOverview");
     var svg = d3.select("#viz");
     var s = computeSizes(svg);
+
+    svg.selectAll("g").remove();
+    svg.selectAll("rect").remove();
 
     var CCounts = {};
     var counts = newArrayOfArrays(GLOBAL.countries.length,activeQ.options.length);
