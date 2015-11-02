@@ -9,7 +9,7 @@ function run () {
 }
 
 var GLOBAL = { data: [],
-		color: ["red","blue","green","white"],
+		color: ["cyan","magenta","yellow","white"],
 		countries: ["United States", "Canada","Britain",
     	"France","Germany","Italy","Spain","Greece","Poland",
     	"Czech Republic","Russia","Turkey","Egypt","Jordan", "Lebanon",
@@ -128,13 +128,13 @@ function updateOverview (activeQ) {
     var svg = d3.select("#viz");
 
     barWidth = s.chartWidth - s.margin;
-    barHeight = s.chartHeight / (1.4 * counts.length - .4);
+    barHeight = s.chartHeight / (1.5 * counts.length - .5);
     var yPos = s.margin;
 
-	for(i=1; i<5; i++){
-		sel.append("text")
+	for(i=0; i<5; i++){
+		svg.append("text")
 			.attr("class","label")
-			.attr("x", i*0.25*barWidth)
+			.attr("x", i*0.25*barWidth+80)
 			.attr("y", 8)
 			.attr("dy","0.3em")
 			.style("text-anchor","middle")
@@ -143,15 +143,26 @@ function updateOverview (activeQ) {
 			.text(i*25+"%"); 
 
 		svg.append("rect")
-			.attr("x", i*0.25*barWidth)
-			.attr("y", 12)
+			.attr("x", i*0.25*barWidth+85)
+			.attr("y", 20)
 	        .attr("width", 2)
-	        .attr("height", s.chartHeight+25)
-	        .style("stroke-width", "2px")
-	        .style("fill", "black");}
+	        .attr("height", s.chartHeight+20)
+	        .style("stroke-width", "1px")
+	        .style("fill", "white");}
+
+	for(i=0; i<activeQ.options.length; i++){
+		svg.append("text")
+		.attr("x", i*(1/activeQ.options.length)*barWidth+95)
+		.attr("y",20)
+		.attr("dy","0.3em")
+		.style("text-anchor","right")
+		.style("fill",GLOBAL.color[i])
+        .style("font-size", "13px")
+		.text(activeQ.options[i]); 
+	}
 
     for(i=0; i<counts.length; i++){
-    	var xPos = s.margin + 50;
+    	var xPos = 85;
     	var k = 0;
 
     	counts[i].forEach(function (j) {
@@ -165,7 +176,7 @@ function updateOverview (activeQ) {
             xPos += barWidth *j/CCounts[GLOBAL.countries[i]];
             k += 1;
     	})
-    	yPos += barHeight*1.4 ;
+    	yPos += barHeight*1.5 ;
     	}
 
     yPos = s.margin;
@@ -179,7 +190,7 @@ function updateOverview (activeQ) {
 			.style("fill","white")
             .style("font-size", "11px")
 			.text(GLOBAL.countries[i]);
-		yPos += barHeight*1.4 ;
+		yPos += barHeight*1.5 ;
 	}
 
  //    var yPos = d3.scale.linear() 
